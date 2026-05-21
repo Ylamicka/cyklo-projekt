@@ -1,0 +1,7 @@
+--Startup--
+composer update
+npm i bootstrap
+npm i bootswatch
+npm i flag-icons
+--Odkaz--
+http://localhost/Cifr/cyklo-projekt
