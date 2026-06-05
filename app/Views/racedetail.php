@@ -16,31 +16,45 @@
 
                 <div class="card h-100 shadow-sm overflow-hidden">
                     <div class="flag-box">
-                    <span class="fi fi-<?php echo $row->country; ?> border border-dark"></span>
+                        <span class="fi fi-<?php echo $row->country; ?> border border-dark"></span>
                     </div>
                     <div class="card-body">
                         <h5 class="card-title bold fs-4"><?= $row->real_name; ?></h5>
                         <hr>
-                        <p class="card-text mb-2">
-                            <strong>Start:</strong> <?= date('j. n. Y', strtotime($row->start_date)); ?>
-                        </p>
-                        <p class="card-text mb-2">
-                            <strong>Konec:</strong> <?= date('j. n. Y', strtotime($row->end_date)); ?>
-                        </p>
-                        <p class="card-text mb-2">
-                            <strong>Délka etap:</strong> <?= $row->distance; ?> km
-                        </p>
-                        <p class="card-text mb-0">
-                            <strong>Převýšení:</strong> <?= $display_meters; ?>
-                        </p>
+                        
+                        <div class="row align-items-center">
+                            <div class="col-8">
+                                <p class="card-text mb-2">
+                                    <strong>Start:</strong> <?= date('j. n. Y', strtotime($row->start_date)); ?>
+                                </p>
+                                <p class="card-text mb-2">
+                                    <strong>Konec:</strong> <?= date('j. n. Y', strtotime($row->end_date)); ?>
+                                </p>
+                                <p class="card-text mb-2">
+                                    <strong>Délka etap:</strong> <?= $row->distance; ?> km
+                                </p>
+                                <p class="card-text mb-0">
+                                    <strong>Převýšení:</strong> <?= $display_meters; ?>
+                                </p>
+                            </div>
+                            
+                            <div class="col-4 text-center">
+                                <?php if (!empty($row->logo)): ?>
+                                    <img src="<?= base_url('Images/' . $row->logo); ?>" 
+                                         alt="Logo <?= $row->real_name; ?>" 
+                                         class="img-fluid rounded" 
+                                         style="max-height: 80px; width: auto; object-fit: contain;">
+                                <?php endif; ?>
+                            </div>
+                        </div>
+
                     </div>
-                    
                 </div>
             </div>
         <?php endforeach; ?>
     </div>
     <div class="d-flex justify-content-center mt-4">
-    <?= $pager->links() ?>
+        <?= $pager->links() ?>
     </div>
 </div>
 <?= $this->endSection(); ?>

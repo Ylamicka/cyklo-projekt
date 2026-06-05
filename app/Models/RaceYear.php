@@ -12,7 +12,7 @@ class RaceYear extends Model
     protected $returnType       = 'object';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = [];
+    protected $allowedFields = ['year', 'real_name', 'uci_tour', 'logo', 'country'];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;

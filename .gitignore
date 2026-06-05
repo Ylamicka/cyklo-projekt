@@ -85,6 +85,7 @@ phpunit
 #-------------------------
 vendor/
 node_modules/
+Images/
 #-------------------------
 # IDE / Development Files
 #-------------------------
