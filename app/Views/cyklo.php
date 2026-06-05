@@ -2,7 +2,7 @@
 
 <?=$this->section("content");?>
 
-<h1 class="display-4 text-center my-4">Roky Závodů</h1>
+<h1 class="display-4 text-center mb-5">Roky Závodů</h1>
 
 <div class="d-grid gap-2 col-md-6 mx-auto">
     <?php foreach($raceYear as $row): ?>

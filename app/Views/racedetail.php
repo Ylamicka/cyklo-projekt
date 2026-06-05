@@ -2,7 +2,7 @@
 <?= $this->section("content"); ?>
 
 <div class="container py-4">
-    <h1 class="display-4 text-center mb-5">Detaily závodů z roku <?= basename(current_url()); ?></h1>
+    <h1 class="display-4 text-center mb-5">Detaily závodů z roku <?= $vybranyRok ?></h1>
 
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         <?php foreach ($detail as $row): ?>
@@ -22,10 +22,10 @@
                         <h5 class="card-title bold fs-4"><?= $row->real_name; ?></h5>
                         <hr>
                         <p class="card-text mb-2">
-                            <strong>Start:</strong> <?= $row->start_date; ?>
+                            <strong>Start:</strong> <?= date('j. n. Y', strtotime($row->start_date)); ?>
                         </p>
                         <p class="card-text mb-2">
-                            <strong>Konec:</strong> <?= $row->end_date; ?>
+                            <strong>Konec:</strong> <?= date('j. n. Y', strtotime($row->end_date)); ?>
                         </p>
                         <p class="card-text mb-2">
                             <strong>Délka etap:</strong> <?= $row->distance; ?> km
