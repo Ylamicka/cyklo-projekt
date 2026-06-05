@@ -7,3 +7,4 @@ use CodeIgniter\Router\RouteCollection;
  */
 $routes->get('/', 'Raceyear::index');
 $routes->get('zavody/rok/(:num)', 'Racedetail::index/$1');
+
