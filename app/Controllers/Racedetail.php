@@ -6,6 +6,7 @@ use App\Controllers\BaseController;
 use CodeIgniter\HTTP\ResponseInterface;
 use App\Models\RaceStages as Rs;
 use App\Models\RaceYear as Ry;
+use App\Models\RaceUciTour as Rut;
 use Config\MainConfig as Mc;
 
 use App\Libraries\Upload;
@@ -20,9 +21,10 @@ class Racedetail extends BaseController
  
         $config = new Mc();
  
-        
+
         $dataDetail = $raceYear->select('cyklo_race_year.id AS race_year_id, cyklo_race_year.uci_tour, cyklo_race_year.year, cyklo_race_year.real_name, cyklo_race_year.start_date, cyklo_race_year.end_date, cyklo_stage.vertical_meters, cyklo_stage.distance, cyklo_stage.arrival,cyklo_race_year.country, cyklo_race_year.logo')
             ->join('cyklo_stage', 'cyklo_stage.id_race_year = cyklo_race_year.id', 'left')
+            ->join("cyklo_uci_tour_type", "cyklo_uci_tour_type.id = cyklo_race_year.uci_tour")
             ->where('cyklo_race_year.year', $rok)
             ->paginate($config->PagerNumber);
  
