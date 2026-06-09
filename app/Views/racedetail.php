@@ -4,7 +4,7 @@
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-5">
         <h1 class="display-4 mb-0">Detaily závodů z roku <?= $vybranyRok ?></h1>
-        <button class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#addModal">
+        <button class="btn btn-dark btn-lg" data-bs-toggle="modal" data-bs-target="#addModal">
             <i class="bi bi-plus-circle"></i> Přidat ročník
         </button>
     </div>
@@ -35,8 +35,8 @@
                         </div>
                         <div class="card-body">
                             <h5 class="card-title bold fs-4"><?= $row->real_name; ?></h5>
-                            <?php if(!empty($row->uci_tour)): ?>
-                                <span class="badge bg-secondary mb-2"><?= $row->uci_tour; ?></span>
+                            <?php if(!empty($row->uci_tour_name)): ?>
+                                <span class="badge bg-secondary mb-2"><?= $row->uci_tour_name; ?></span>
                             <?php endif; ?>
                             <hr>
                            
@@ -70,7 +70,7 @@
  
                     <?php if ($raceYearId): ?>
                         <div class="card-footer bg-transparent border-0 d-flex gap-2 pb-3 px-3">
-                            <button class="btn btn-outline-primary btn-sm flex-grow-1"
+                            <button class="btn btn-outline-dark btn-sm flex-grow-1"
                                     data-bs-toggle="modal"
                                     data-bs-target="#editModal<?= $raceYearId ?>">
                                 Editovat
@@ -197,8 +197,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zavřít</button>
-                    <button type="submit" class="btn btn-success">Přidat ročník</button>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Zavřít</button>
+                    <button type="submit" class="btn btn-dark">Přidat ročník</button>
                 </div>
             </form>
         </div>

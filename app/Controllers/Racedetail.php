@@ -22,9 +22,9 @@ class Racedetail extends BaseController
         $config = new Mc();
  
 
-        $dataDetail = $raceYear->select('cyklo_race_year.id AS race_year_id, cyklo_race_year.uci_tour, cyklo_race_year.year, cyklo_race_year.real_name, cyklo_race_year.start_date, cyklo_race_year.end_date, cyklo_stage.vertical_meters, cyklo_stage.distance, cyklo_stage.arrival,cyklo_race_year.country, cyklo_race_year.logo')
+        $dataDetail = $raceYear->select('cyklo_race_year.id AS race_year_id, cyklo_uci_tour_type.name AS uci_tour_name, cyklo_race_year.uci_tour, cyklo_race_year.year, cyklo_race_year.real_name, cyklo_race_year.start_date, cyklo_race_year.end_date, cyklo_stage.vertical_meters, cyklo_stage.distance, cyklo_stage.arrival,cyklo_race_year.country, cyklo_race_year.logo')
             ->join('cyklo_stage', 'cyklo_stage.id_race_year = cyklo_race_year.id', 'left')
-            ->join("cyklo_uci_tour_type", "cyklo_uci_tour_type.id = cyklo_race_year.uci_tour")
+            ->join("cyklo_uci_tour_type", "cyklo_uci_tour_type.id = cyklo_race_year.uci_tour", 'left')
             ->where('cyklo_race_year.year', $rok)
             ->paginate($config->PagerNumber);
  
@@ -32,6 +32,7 @@ class Racedetail extends BaseController
             "detail" => $dataDetail,
             "vybranyRok" => $rok,
             "pager" => $raceYear->pager
+            
         ];
  
         return view("racedetail", $data);
