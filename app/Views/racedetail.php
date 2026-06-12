@@ -17,7 +17,10 @@
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         <?php foreach ($detail as $row): ?>
             <?php
-                $display_meters = $row->vertical_meters;
+                $display_meters = $row->vertical_meters
+                    ? number_format($row->vertical_meters, 0, ',', ' ') . ' m'
+                    : 'Neznámé data'
+;
                 if ($display_meters == '0' || empty($display_meters)) {
                     $display_meters = 'Neznámé data';
                 }
@@ -50,7 +53,7 @@
                                         <strong>Délka etap:</strong> <?= $row->distance ?? 0; ?> km
                                     </p>
                                     <p class="card-text mb-0">
-                                        <strong>Převýšení:</strong> <?= $display_meters; ?> m
+                                        <strong>Převýšení:</strong> <?= $display_meters; ?> 
                                     </p>
                                 </div>
                                
