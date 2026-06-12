@@ -50,7 +50,7 @@
                                         <strong>Délka etap:</strong> <?= $row->distance ?? 0; ?> km
                                     </p>
                                     <p class="card-text mb-0">
-                                        <strong>Převýšení:</strong> <?= $display_meters; ?>
+                                        <strong>Převýšení:</strong> <?= $display_meters; ?> m
                                     </p>
                                 </div>
                                
@@ -179,7 +179,6 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <form action="<?= base_url('racedetail/add') ?>" method="post" enctype="multipart/form-data">
-                <?= csrf_field() ?>
                 <input type="hidden" name="page" value="<?= service('request')->getGet('page') ?: 1 ?>">
  
                 <div class="modal-header">
