@@ -18,11 +18,12 @@ class Racedetail extends BaseController
     public function index($rok)
     {
         $raceYear = new Ry();
- 
         $config = new Mc();
+       
+        $uciTourModel = new Rut();
+        $uciTours = $uciTourModel->findAll();
  
-
-        $dataDetail = $raceYear->select('cyklo_race_year.id AS race_year_id, cyklo_uci_tour_type.name AS uci_tour_name, cyklo_race_year.uci_tour, cyklo_race_year.year, cyklo_race_year.real_name, cyklo_race_year.start_date, cyklo_race_year.end_date, cyklo_stage.vertical_meters, cyklo_stage.distance, cyklo_stage.arrival,cyklo_race_year.country, cyklo_race_year.logo')
+        $dataDetail = $raceYear->select('cyklo_race_year.id AS race_year_id, cyklo_uci_tour_type.name AS uci_tour_name, cyklo_race_year.uci_tour, cyklo_race_year.year, cyklo_race_year.real_name, cyklo_race_year.start_date, cyklo_race_year.end_date, cyklo_stage.vertical_meters, cyklo_stage.distance, cyklo_stage.arrival, cyklo_race_year.country, cyklo_race_year.logo')
             ->join('cyklo_stage', 'cyklo_stage.id_race_year = cyklo_race_year.id', 'left')
             ->join("cyklo_uci_tour_type", "cyklo_uci_tour_type.id = cyklo_race_year.uci_tour", 'left')
             ->where('cyklo_race_year.year', $rok)
@@ -31,76 +32,105 @@ class Racedetail extends BaseController
         $data = [
             "detail" => $dataDetail,
             "vybranyRok" => $rok,
-            "pager" => $raceYear->pager
-            
+            "pager" => $raceYear->pager,
+            "uciTours" => $uciTours
         ];
  
         return view("racedetail", $data);
     }
  
-   
- 
     // 1. Přidání nového ročníku
     public function add()
     {
         $raceYear = new Ry();
+        $raceStage = new Rs();
+        $uploadLib = new Upload();
        
-        $data = [
-            'year'      => $this->request->getPost('year'),
-            'real_name' => $this->request->getPost('real_name') ?: 'Obecný název závodu',
-            'uci_tour'  => $this->request->getPost('uci_tour'),
-            'country'   => $this->request->getPost('country') ?: 'cz'
+        $yearData = [
+            'year'       => $this->request->getPost('year'),
+            'real_name'  => $this->request->getPost('real_name') ?: 'Obecný název závodu',
+            'uci_tour'   => $this->request->getPost('uci_tour') ?: 0, 
+            'country'    => $this->request->getPost('country') ?: 'cz',
+            'start_date' => $this->request->getPost('start_date') ?: date('Y-m-d'),
+            'end_date'   => $this->request->getPost('end_date') ?: date('Y-m-d'),
         ];
  
-        $upload = new Upload();
-        // Zpracování loga
-        $img = $this->request->getFile('logo');
-        if ($img && $img->isValid() && !$img->hasMoved()) {
-            $newName = $img->getRandomName();
-            $img->move(ROOTPATH . 'public/Images', $newName);
-            $data['logo'] = $newName;
+        $uploadedLogo = $uploadLib->uploadImage('logo', 'Images');
+        if ($uploadedLogo) {
+            $yearData['logo'] = $uploadedLogo;
         }
  
-        $data['uci_tour'] = $data['uci_tour'] ?? '';
-        $raceYear->insert($data);
-        return redirect()->to('zavody/rok/' . $data['year'])->with('success', 'Ročník byl úspěšně přidán.');
+        $raceYear->insert($yearData);
+        $newRaceYearId = $raceYear->getInsertID();
+ 
+        $stageData = [
+            'id_race_year'    => $newRaceYearId,
+            'distance'        => $this->request->getPost('distance') ?: 0,
+            'vertical_meters' => $this->request->getPost('vertical_meters') ?: 0,
+        ];
+       
+        $raceStage->insert($stageData);
+ 
+        $page = $this->request->getPost('page') ?: 1;
+        return redirect()->to('zavody/rok/' . $yearData['year'] . '?page=' . $page)->with('success', 'Ročník byl úspěšně přidán.');
     }
  
     // 2. Editace ročníku
     public function edit($id)
     {
         $raceYear = new Ry();
+        $raceStage = new Rs();
+        $uploadLib = new Upload();
        
-        $data = [
-            'year'      => $this->request->getPost('year'),
-            'real_name' => $this->request->getPost('real_name'),
-            'uci_tour'  => $this->request->getPost('uci_tour'),
+        $yearData = [
+            'year'       => $this->request->getPost('year'),
+            'real_name'  => $this->request->getPost('real_name'),
+            'country'    => $this->request->getPost('country'),
+            'uci_tour'   => $this->request->getPost('uci_tour') ?: 0,
+            'start_date' => $this->request->getPost('start_date') ?: date('Y-m-d'),
+            'end_date'   => $this->request->getPost('end_date') ?: date('Y-m-d'),
         ];
  
-       
-        $img = $this->request->getFile('logo');
-        if ($img && $img->isValid() && !$img->hasMoved()) {
-            $newName = $img->getRandomName();
-            $img->move(ROOTPATH . 'public/Images', $newName);
-            $data['logo'] = $newName;
+        $uploadedLogo = $uploadLib->uploadImage('logo', 'Images');
+        if ($uploadedLogo) {
+            $yearData['logo'] = $uploadedLogo;
         }
  
-        $raceYear->update($id, $data);
-        return redirect()->to('zavody/rok/' . $data['year'])->with('success', 'Ročník byl úspěšně upraven.');
+        $raceYear->update($id, $yearData);
+ 
+        $stage = $raceStage->where('id_race_year', $id)->first();
+        $stageData = [
+            'distance'        => $this->request->getPost('distance') ?: 0,
+            'vertical_meters' => $this->request->getPost('vertical_meters') ?: 0,
+        ];
+ 
+        if ($stage) {
+            $raceStage->update($stage->id, $stageData);
+        } else {
+            $stageData['id_race_year'] = $id;
+            $raceStage->insert($stageData);
+        }
+ 
+        $page = $this->request->getPost('page') ?: 1;
+        return redirect()->to('zavody/rok/' . $yearData['year'] . '?page=' . $page)->with('success', 'Ročník byl úspěšně upraven.');
     }
  
     // 3. Smazání ročníku
-    public function delete($id)
-    {
-        $raceYear = new Ry();
-        $record = $raceYear->find($id);
+public function delete($id)
+{
+    $raceYear = new Ry();
+    $record = $raceYear->find($id);
+   
+    if ($record) {
+        $rok = $record->year;
+        $raceYear->delete($id);
+    
        
-        if ($record) {
-            $raceYear->delete($id);
-        
-            return redirect()->back()->with('success', 'Ročník byl smazán.');
-        }
-       
-        return redirect()->back();
+        $page = $this->request->getPost('page') ?: 1;
+
+        return redirect()->to('zavody/rok/' . $rok . '?page=' . $page)->with('success', 'Ročník byl úspěšně smazán.');
     }
+   
+    return redirect()->back();
+}
 }

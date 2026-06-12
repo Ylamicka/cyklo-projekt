@@ -4,17 +4,15 @@
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-5">
         <h1 class="display-4 mb-0">Detaily závodů z roku <?= $vybranyRok ?></h1>
-        <button class="btn btn-dark btn-lg" data-bs-toggle="modal" data-bs-target="#addModal">
-            <i class="bi bi-plus-circle"></i> Přidat ročník
-        </button>
-    </div>
- 
-    <?php if (session()->getFlashdata('success')): ?>
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <?= session()->getFlashdata('success') ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div class="d-flex gap-2">
+            <a href="<?= base_url() ?>" class="btn btn-outline-dark btn-lg">
+                <i class="bi bi-arrow-left-circle"></i> Zpět na přehled roků
+            </a>
+            <button class="btn btn-dark btn-lg" data-bs-toggle="modal" data-bs-target="#addModal">
+                <i class="bi bi-plus-circle"></i> Přidat ročník
+            </button>
         </div>
-    <?php endif; ?>
+    </div>
  
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         <?php foreach ($detail as $row): ?>
@@ -78,7 +76,7 @@
                             <a href="<?= base_url('racedetail/delete/' . $raceYearId) ?>"
                                class="btn btn-outline-danger btn-sm flex-grow-1"
                                onclick="return confirm('Opravdu chcete smazat tento ročník závodu?')">
-                                Smazat
+                                 Smazat
                             </a>
                         </div>
                     <?php endif; ?>
@@ -90,7 +88,8 @@
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <form action="<?= base_url('racedetail/edit/' . $raceYearId) ?>" method="post" enctype="multipart/form-data">
-                                <?= csrf_field() ?>
+                                <input type="hidden" name="page" value="<?= service('request')->getGet('page') ?: 1 ?>">
+                                
                                 <div class="modal-header">
                                     <h5 class="modal-title">Upravit ročník: <?= $row->real_name ?></h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -109,6 +108,19 @@
                                         <input type="text" name="real_name" class="form-control" value="<?= esc($row->real_name) ?>" required>
                                     </div>
                                     <div class="mb-3">
+                                        <label class="form-label">Země (Vlajka)</label>
+                                        <select name="country" class="form-select" required>
+                                            <?php $currentCountry = strtolower($row->country ?? ''); ?>
+                                            <option value="cz" <?= $currentCountry == 'cz' ? 'selected' : '' ?>>Česko</option>
+                                            <option value="fr" <?= $currentCountry == 'fr' ? 'selected' : '' ?>>Francie</option>
+                                            <option value="it" <?= $currentCountry == 'it' ? 'selected' : '' ?>>Itálie</option>
+                                            <option value="es" <?= $currentCountry == 'es' ? 'selected' : '' ?>>Španělsko</option>
+                                            <option value="sk" <?= $currentCountry == 'sk' ? 'selected' : '' ?>>Slovensko</option>
+                                            <option value="de" <?= $currentCountry == 'de' ? 'selected' : '' ?>>Německo</option>
+                                            <option value="gb" <?= $currentCountry == 'gb' ? 'selected' : '' ?>>Velká Británie</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
                                         <label class="form-label">Start</label>
                                         <input type="date" name="start_date" class="form-control" value="<?= $row->start_date ?>">
                                     </div>
@@ -124,6 +136,19 @@
                                         <label class="form-label">Převýšení (m)</label>
                                         <input type="number" name="vertical_meters" class="form-control" value="<?= $row->vertical_meters ?? 0 ?>">
                                     </div>
+                                   
+                                    <div class="mb-3">
+                                        <label class="form-label">UCI Tour</label>
+                                        <select name="uci_tour" class="form-select">
+                                            <option value="0">-- Bez UCI Tour --</option>
+                                            <?php foreach ($uciTours as $tour): ?>
+                                                <option value="<?= $tour->id ?>" <?= $tour->id == $row->uci_tour ? 'selected' : '' ?>>
+                                                    <?= esc($tour->name) ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+ 
                                     <div class="mb-3">
                                         <label class="form-label">Změnit Logo (Obrázek)</label>
                                         <input type="file" name="logo" class="form-control" accept="image/*">
@@ -155,6 +180,8 @@
         <div class="modal-content">
             <form action="<?= base_url('racedetail/add') ?>" method="post" enctype="multipart/form-data">
                 <?= csrf_field() ?>
+                <input type="hidden" name="page" value="<?= service('request')->getGet('page') ?: 1 ?>">
+ 
                 <div class="modal-header">
                     <h5 class="modal-title" id="addModalLabel">Přidat nový ročník závodu</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -162,7 +189,7 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Rok závodu</label>
-                        <select name="year" class="form-select" required>
+                        <select id="addYearSelect" name="year" class="form-select" required>
                             <?php for($y = date('Y')+1; $y >= 2000; $y--): ?>
                                 <option value="<?= $y ?>" <?= $y == $vybranyRok ? 'selected' : '' ?>><?= $y ?></option>
                             <?php endfor; ?>
@@ -173,12 +200,24 @@
                         <input type="text" name="real_name" class="form-control" placeholder="Obecný název závodu">
                     </div>
                     <div class="mb-3">
+                        <label class="form-label">Země (Vlajka)</label>
+                        <select name="country" class="form-select" required>
+                            <option value="cz" selected>Česko</option>
+                            <option value="fr">Francie</option>
+                            <option value="it">Itálie</option>
+                            <option value="es">Španělsko</option>
+                            <option value="sk">Slovensko</option>
+                            <option value="de">Německo</option>
+                            <option value="gb">Velká Británie</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label">Start</label>
-                        <input type="date" name="start_date" class="form-control">
+                        <input type="date" id="addStartDate" name="start_date" class="form-control">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Konec</label>
-                        <input type="date" name="end_date" class="form-control">
+                        <input type="date" id="addEndDate" name="end_date" class="form-control">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Délka etap (km)</label>
@@ -189,7 +228,15 @@
                         <input type="number" name="vertical_meters" class="form-control" placeholder="0">
                     </div>
                    
-                    <input type="hidden" name="country" value="cz">
+                    <div class="mb-3">
+                        <label class="form-label">UCI Tour</label>
+                        <select name="uci_tour" class="form-select">
+                            <option value="0">-- Bez UCI Tour --</option>
+                            <?php foreach ($uciTours as $tour): ?>
+                                <option value="<?= $tour->id ?>"><?= esc($tour->name) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
                    
                     <div class="mb-3">
                         <label class="form-label">Logo závodu</label>
@@ -204,5 +251,24 @@
         </div>
     </div>
 </div>
+ 
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const yearSelect = document.getElementById("addYearSelect");
+    const startDateInput = document.getElementById("addStartDate");
+    const endDateInput = document.getElementById("addEndDate");
+ 
+    function updateDates() {
+        const selectedYear = yearSelect.value;
+        if(selectedYear) {
+            startDateInput.value = `${selectedYear}-01-01`;
+            endDateInput.value = `${selectedYear}-01-01`;
+        }
+    }
+ 
+    updateDates();
+    yearSelect.addEventListener("change", updateDates);
+});
+</script>
  
 <?= $this->endSection(); ?>
